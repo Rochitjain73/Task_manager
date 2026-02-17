@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Edit Task</h2>
+  <form class="task-form" method="post">
+    <label for="title">Task title</label>
+    <input id="title" name="title" type="text" value="{{ task.title }}" required>
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="3">{{ task.description or '' }}</textarea>
+
+    <label for="due_date">Due date</label>
+    <input id="due_date" name="due_date" type="date" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
+
+    <label class="checkbox-label" for="completed">
+      <input id="completed" name="completed" type="checkbox" {% if task.completed %}checked{% endif %}>
+      Mark as completed
+    </label>
+
+    <div class="inline-actions">
+      <button type="submit">Save Changes</button>
+      <a class="button-link secondary" href="{{ url_for('tasks') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Welcome, {{ current_user.username }}</h2>
+  <form class="task-form" method="post" action="{{ url_for('add_task') }}">
+    <label for="title">Task title</label>
+    <input id="title" name="title" type="text" required>
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="3"></textarea>
+
+    <label for="due_date">Due date</label>
+    <input id="due_date" name="due_date" type="date">
+
+    <button type="submit">Add Task</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Your Tasks</h3>
+  {% if tasks %}
+    <ul class="task-list">
+      {% for task in tasks %}
+        <li class="task-item">
+          <div>
+            <strong>{{ task.title }}</strong>
+            {% if task.completed %}
+              <span class="status done">Completed</span>
+            {% else %}
+              <span class="status open">Open</span>
+            {% endif %}
+            {% if task.description %}
+              <p>{{ task.description }}</p>
+            {% endif %}
+            {% if task.due_date %}
+              <small>Due: {{ task.due_date.strftime('%Y-%m-%d') }}</small>
+            {% endif %}
+          </div>
+          <div class="actions">
+            <a class="button-link" href="{{ url_for('edit_task', task_id=task.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('delete_task', task_id=task.id) }}" onsubmit="return confirm('Delete this task?');">
+              <button class="danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tasks yet. Add your first task above.</p>
+  {% endif %}
+</div>
+{% endblock %}
