@@ -1,23 +1,52 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card">
-  <h2>Welcome, {{ current_user.username }}</h2>
-  <form class="task-form" method="post" action="{{ url_for('add_task') }}">
-    <label for="title">Task title</label>
-    <input id="title" name="title" type="text" required>
+<div class="grid-2">
+  <div class="card">
+    <h2>Welcome, {{ current_user.username }}</h2>
+    <form class="task-form" method="post" action="{{ url_for('add_task') }}">
+      <label for="title">Task title</label>
+      <input id="title" name="title" type="text" required>
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description" rows="3"></textarea>
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="3"></textarea>
 
-    <label for="due_date">Due date</label>
-    <input id="due_date" name="due_date" type="date">
+      <label for="due_date">Due date</label>
+      <input id="due_date" name="due_date" type="date">
 
-    <button type="submit">Add Task</button>
-  </form>
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Search & Filter</h3>
+    <form class="filter-grid" method="get" action="{{ url_for('tasks') }}">
+      <label for="q">Search</label>
+      <input id="q" name="q" type="text" value="{{ filters.q }}" placeholder="Title or description">
+
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="all" {% if filters.status == 'all' %}selected{% endif %}>All</option>
+        <option value="open" {% if filters.status == 'open' %}selected{% endif %}>Open</option>
+        <option value="completed" {% if filters.status == 'completed' %}selected{% endif %}>Completed</option>
+      </select>
+
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort">
+        <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
+        <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+        <option value="due_soon" {% if filters.sort == 'due_soon' %}selected{% endif %}>Due soon</option>
+      </select>
+
+      <div class="inline-actions">
+        <button type="submit">Apply</button>
+        <a class="button-link secondary" href="{{ url_for('tasks') }}">Reset</a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div class="card">
-  <h3>Your Tasks</h3>
+  <h3>Your Tasks ({{ pagination.total }})</h3>
   {% if tasks %}
     <ul class="task-list">
       {% for task in tasks %}
@@ -45,8 +74,20 @@
         </li>
       {% endfor %}
     </ul>
+
+    {% if pagination.pages > 1 %}
+      <div class="pagination">
+        {% if pagination.has_prev %}
+          <a class="button-link secondary" href="{{ url_for('tasks', page=pagination.prev_num, q=filters.q, status=filters.status, sort=filters.sort) }}">Prev</a>
+        {% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}
+          <a class="button-link secondary" href="{{ url_for('tasks', page=pagination.next_num, q=filters.q, status=filters.status, sort=filters.sort) }}">Next</a>
+        {% endif %}
+      </div>
+    {% endif %}
   {% else %}
-    <p>No tasks yet. Add your first task above.</p>
+    <p>No tasks found for current filters.</p>
   {% endif %}
 </div>
 {% endblock %}
