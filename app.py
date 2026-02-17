@@ -18,10 +18,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 os.makedirs(app.instance_path, exist_ok=True)
 default_db_path = os.path.join(app.instance_path, "task_manager.db")
+database_url = os.environ.get("DATABASE_URL")
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", f"sqlite:///{default_db_path}"
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url or f"sqlite:///{default_db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
